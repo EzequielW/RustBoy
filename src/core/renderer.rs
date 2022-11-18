@@ -6,13 +6,14 @@ pub(crate) struct Renderer{
     widthRes: usize,
     heightRes: usize,
     display: Vec<usize>,
-    pixels: Pixels
+    pixels: Pixels,
+    vram: [u8; 4096]
 }
 
 impl Renderer {
     pub fn new(window: &Window) -> Result<Renderer, Error> {
-        let defaultWidth: usize = 64;
-        let defaultHeight: usize = 32;
+        let defaultWidth: usize = 160;
+        let defaultHeight: usize = 144;
 
         let pixels = {
             let window_size = window.inner_size();
@@ -20,11 +21,14 @@ impl Renderer {
             Pixels::new(defaultWidth as u32, defaultHeight as u32, surface_texture)?
         };
 
+        let vram: [u8; 4096] = [0; 4096];
+
         Ok(Renderer {
             widthRes: defaultWidth,
             heightRes: defaultHeight,
             display: vec![0; defaultWidth * defaultHeight],
-            pixels
+            pixels,
+            vram
         })
     }
 
