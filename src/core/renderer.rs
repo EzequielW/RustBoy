@@ -2,12 +2,21 @@ use log::error;
 use pixels::{SurfaceTexture, Pixels, Error};
 use winit::{window::{Window}};
 
+#[derive(Copy, Clone)]
+pub(crate) struct Tile{
+    pub pixels: [u8; 64], // 16 bytes 8x8 tile, each pixel has two bit for color
+}
+
 pub(crate) struct Renderer{
     widthRes: usize,
     heightRes: usize,
     display: Vec<usize>,
     pixels: Pixels,
-    vram: [u8; 4096]
+    vram: [u8; 8192],
+    bgAddressingMode: bool, // true = addressing $8000; false = addressing $9000,
+    tileBlock1: [Tile; 128],
+    tileBlock2: [Tile; 128],
+    tileBlock3: [Tile; 128]
 }
 
 impl Renderer {
@@ -21,14 +30,22 @@ impl Renderer {
             Pixels::new(defaultWidth as u32, defaultHeight as u32, surface_texture)?
         };
 
-        let vram: [u8; 4096] = [0; 4096];
+        let bgAddressingMode = false;
+        let vram: [u8; 8192] = [0; 8192];
+        let tileBlock1: [Tile; 128] = [Tile{ pixels: [0; 64] } ; 128];
+        let tileBlock2: [Tile; 128] = [Tile{ pixels: [0; 64] } ; 128];
+        let tileBlock3: [Tile; 128] = [Tile{ pixels: [0; 64] } ; 128];
 
         Ok(Renderer {
             widthRes: defaultWidth,
             heightRes: defaultHeight,
             display: vec![0; defaultWidth * defaultHeight],
             pixels,
-            vram
+            vram,
+            bgAddressingMode,
+            tileBlock1,
+            tileBlock2,
+            tileBlock3
         })
     }
 
